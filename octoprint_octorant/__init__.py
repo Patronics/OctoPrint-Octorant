@@ -9,7 +9,8 @@ import requests
 from datetime import timedelta
 from PIL import Image
 from io import BytesIO
-
+self.currentTime=0;
+self.oldTime=0;
 class OctorantPlugin(octoprint.plugin.EventHandlerPlugin,
 					 octoprint.plugin.StartupPlugin,
 					 octoprint.plugin.SettingsPlugin,
@@ -52,46 +53,53 @@ class OctorantPlugin(octoprint.plugin.EventHandlerPlugin,
 				"message" : ":grey_question: Your printer is in an unknown state."
 			},
 			"printing_started":{
-				"name" : "Priting process : started",
+				"name" : "Printing process : started",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":printer: I've started printing {file}"
 			},
 			"printing_paused":{
-				"name" : "Priting process : paused",
+				"name" : "Printing process : paused",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":pause_button: The printing was paused."
 			},
 			"printing_resumed":{
-				"name" : "Priting process : resumed",
+				"name" : "Printing process : resumed",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":play_button: The printing was resumed."
 			},
 			"printing_cancelled":{
-				"name" : "Priting process : cancelled",
+				"name" : "Printing process : cancelled",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":octagonal_sign: The printing was stopped."
 			},
 			"printing_done":{
-				"name" : "Priting process : done",
+				"name" : "Printing process : done",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":thumbsup: Printing is done! Took about {time_formatted}"
 			},
 			"printing_failed":{
-				"name" : "Priting process : failed",
+				"name" : "Printing process : failed",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":thumbsdown: Printing has failed! :("
 			},
 			"printing_progress":{
-				"name" : "Priting progress",
+				"name" : "Printing progress (by percent)",
 				"enabled" : True,
 				"with_snapshot": True,
 				"message" : ":loudspeaker: Printing is at {progress}%",
+				"step" : 10
+			},
+			"printing_progress_time":{
+				"name" : "Printing progress (by time)",
+				"enabled" : True,
+				"with_snapshot": True,
+				"message" : ":loudspeaker: Printing is at {progress}% after {time_formatted}",
 				"step" : 10
 			},
 			"test":{ # Not a real message, but we will treat it as one
@@ -188,7 +196,6 @@ class OctorantPlugin(octoprint.plugin.EventHandlerPlugin,
 			return self.notify_event("printing_resumed",payload)
 		if event == "PrintCancelled":
 			return self.notify_event("printing_cancelled",payload)
-
 		if event == "PrintDone":
 			payload['time_formatted'] = str(timedelta(seconds=int(payload["time"])))
 			return self.notify_event("printing_done", payload)
